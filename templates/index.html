@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ProfitPilot - AI-Powered Business Analytics</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🚀 ProfitPilot</h1>
+            <p>AI-Powered Analytics Dashboard</p>
+        </header>
+
+        <!-- File Upload Section -->
+        <div class="upload-section">
+            <div class="upload-card">
+                <h3>📊 Upload Your Data</h3>
+
+                <!-- Flask-compatible form that submits to Flask backend -->
+                <form id="uploadForm" action="/upload" method="post" enctype="multipart/form-data">
+                    <div class="upload-group">
+                        <div class="file-upload">
+                            <label for="ordersFile">Orders/Revenue CSV:</label>
+                            <input type="file" id="ordersFile" name="ordersFile" accept=".csv" required />
+                            <div class="file-status" id="ordersStatus">No file selected</div>
+                        </div>
+                        <div class="file-upload">
+                            <label for="costsFile">Costs/Expenses CSV:</label>
+                            <input type="file" id="costsFile" name="costsFile" accept=".csv" required />
+                            <div class="file-status" id="costsStatus">No file selected</div>
+                        </div>
+                    </div>
+                    <button id="analyzeBtn" class="analyze-btn" type="submit" disabled>🧠 Analyze with AI</button>
+                </form>
+                <div id="uploadResult" class="upload-result" style="margin-top:1em; display:none;">
+                    <h4>Preview: First 3 Rows of Each File</h4>
+                    <div id="ordersPreview"></div>
+                    <div id="costsPreview"></div>
+                </div>
+                <script>
+                // Enable the analyze button only when both files are selected
+                const ordersInput = document.getElementById('ordersFile');
+                const costsInput = document.getElementById('costsFile');
+                const analyzeBtn = document.getElementById('analyzeBtn');
+                const ordersStatus = document.getElementById('ordersStatus');
+                const costsStatus = document.getElementById('costsStatus');
+                const uploadForm = document.getElementById('uploadForm');
+                const uploadResult = document.getElementById('uploadResult');
+                const ordersPreview = document.getElementById('ordersPreview');
+                const costsPreview = document.getElementById('costsPreview');
+
+                function updateStatus() {
+                    ordersStatus.textContent = ordersInput.files.length ? ordersInput.files[0].name : 'No file selected';
+                    costsStatus.textContent = costsInput.files.length ? costsInput.files[0].name : 'No file selected';
+                    analyzeBtn.disabled = !(ordersInput.files.length && costsInput.files.length);
+                }
+
+                ordersInput.addEventListener('change', updateStatus);
+                costsInput.addEventListener('change', updateStatus);
+
+                uploadForm.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    analyzeBtn.disabled = true;
+                    analyzeBtn.textContent = 'Analyzing...';
+
+                    // Prepare form data
+                    const formData = new FormData();
+                    formData.append('ordersFile', ordersInput.files[0]);
+                    formData.append('costsFile', costsInput.files[0]);
+
+                    // Send AJAX request to Flask backend
+                    fetch('/upload', {
+                        method: 'POST',
+                        body: formData
+                    })
+                     .then(response => {
+                         if (!response.ok) throw new Error('Network response was not ok');
+                         return response.json();
+                     })
+                     .then(data => {
+                         console.log('Received data:', data);
+                         if (data.success) {
+                             // Hide upload result and show summary grid
+                             uploadResult.style.display = 'none';
+                             
+                             // Populate summary grid
+                             document.getElementById('summaryGrid').style.display = 'grid';
+                             document.getElementById('totalRevenue').textContent = data.summary.total_revenue;
+                             document.getElementById('totalCosts').textContent = data.summary.total_costs;
+                             document.getElementById('netProfit').textContent = data.summary.net_profit;
+                             document.getElementById('profitMargin').textContent = data.summary.profit_margin + ' margin';
+                             document.getElementById('predictedRevenue').textContent = data.summary.predicted_revenue;
+                             document.getElementById('revenuePeriod').textContent = data.summary.revenue_period;
+                             document.getElementById('costsPeriod').textContent = data.summary.costs_period;
+                             document.getElementById('trendIndicator').textContent = 'Projected growth';
+                             
+                             // Show AI section and populate insights
+                             document.getElementById('aiSection').style.display = 'block';
+                             document.getElementById('aiLoading').style.display = 'none';
+                             document.getElementById('aiContent').style.display = 'block';
+                             document.getElementById('performanceInsights').innerHTML = data.ai_insights.performance;
+                             document.getElementById('optimizationTips').innerHTML = data.ai_insights.optimization;
+                             document.getElementById('expenseCategories').innerHTML = data.ai_insights.expenses;
+                             document.getElementById('futureProjections').innerHTML = data.ai_insights.projections;
+                             
+                             // Populate data tables
+                             populateOrdersTable(data.orders_data);
+                             populateCostsTable(data.costs_data);
+                             
+                             // Show tables section
+                             document.getElementById('tablesSection').style.display = 'block';
+                         } else {
+                             throw new Error(data.error || 'Upload failed');
+                         }
+                         analyzeBtn.textContent = '🧠 Analyze with AI';
+                         analyzeBtn.disabled = false;
+                     })
+                    .catch(error => {
+                        console.error('Upload error:', error);
+                        uploadResult.style.display = 'block';
+                        ordersPreview.innerHTML = '';
+                        costsPreview.innerHTML = '';
+                        uploadResult.innerHTML = '<span style="color:red;">Error uploading files or receiving preview. Please try again. Error: ' + error.message + '</span>';
+                        analyzeBtn.textContent = '🧠 Analyze with AI';
+                        analyzeBtn.disabled = false;
+                    });
+                });
+                
+                // Function to populate orders table
+                function populateOrdersTable(ordersData) {
+                    const tbody = document.querySelector('#ordersTable tbody');
+                    tbody.innerHTML = '';
+                    
+                    ordersData.forEach(order => {
+                        const row = tbody.insertRow();
+                        row.innerHTML = `
+                            <td>${order.date}</td>
+                            <td>${order.order_id}</td>
+                            <td>${order.order_value}</td>
+                            <td>${order.type}</td>
+                            <td>${order.fees_taxes}</td>
+                        `;
+                    });
+                }
+                
+                // Function to populate costs table
+                function populateCostsTable(costsData) {
+                    const tbody = document.querySelector('#costsTable tbody');
+                    tbody.innerHTML = '';
+                    
+                    costsData.forEach(cost => {
+                        const row = tbody.insertRow();
+                        row.innerHTML = `
+                            <td>${cost.type}</td>
+                            <td>${cost.description}</td>
+                            <td>${cost.amount}</td>
+                            <td>${cost.net_cost}</td>
+                            <td>${cost.category}</td>
+                        `;
+                    });
+                }
+                </script>
+            </div>
+        </div>
+        <!-- Summary Cards -->
+        <div class="summary-grid" id="summaryGrid" style="display: none;">
+            <div class="summary-card revenue-card">
+                <div class="card-icon">💰</div>
+                <div class="card-content">
+                    <h3>Total Revenue</h3>
+                    <div class="amount" id="totalRevenue">$0.00</div>
+                    <div class="period" id="revenuePeriod"></div>
+                </div>
+            </div>
+            <div class="summary-card costs-card">
+                <div class="card-icon">💸</div>
+                <div class="card-content">
+                    <h3>Total Costs</h3>
+                    <div class="amount" id="totalCosts">$0.00</div>
+                    <div class="period" id="costsPeriod"></div>
+                </div>
+            </div>
+            <div class="summary-card profit-card">
+                <div class="card-icon">📈</div>
+                <div class="card-content">
+                    <h3>Net Profit</h3>
+                    <div class="amount" id="netProfit">$0.00</div>
+                    <div class="profit-margin" id="profitMargin">0% margin</div>
+                </div>
+            </div>
+            <div class="summary-card prediction-card">
+                <div class="card-icon">🔮</div>
+                <div class="card-content">
+                    <h3>3-Month Prediction</h3>
+                    <div class="amount" id="predictedRevenue">$0.00</div>
+                    <div class="trend" id="trendIndicator">Calculating...</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- AI Insights Section -->
+        <div class="ai-section" id="aiSection" style="display: none;">
+            <div class="ai-card">
+                <h3>🤖 AI Business Insights</h3>
+                <div class="loading" id="aiLoading">
+                    <div class="loading-spinner"></div>
+                    <p>AI is analyzing your business data...</p>
+                </div>
+                <div class="ai-content" id="aiContent" style="display: none;">
+                    <div class="insights-grid">
+                        <div class="insight-card">
+                            <h4>📊 Performance Analysis</h4>
+                            <div id="performanceInsights">Loading...</div>
+                        </div>
+                        <div class="insight-card">
+                            <h4>💡 Optimization Recommendations</h4>
+                            <div id="optimizationTips">Loading...</div>
+                        </div>
+                        <div class="insight-card">
+                            <h4>🎯 Expense Categories</h4>
+                            <div id="expenseCategories">Loading...</div>
+                        </div>
+                        <div class="insight-card">
+                            <h4>🔮 Future Projections</h4>
+                            <div id="futureProjections">Loading...</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Data Tables -->
+        <div class="tables-section" id="tablesSection" style="display: none;">
+            <div class="table-card">
+                <h3>💰 Recent Orders</h3>
+                <div class="table-container">
+                    <table id="ordersTable">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Order #</th>
+                                <th>Order Value</th>
+                                <th>Type</th>
+                                <th>Fees & Taxes</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="table-card">
+                <h3>💸 Recent Expenses</h3>
+                <div class="table-container">
+                    <table id="costsTable">
+                        <thead>
+                            <tr>
+                                <th>Type</th>
+                                <th>Description</th>
+                                <th>Amount</th>
+                                <th>Net Cost</th>
+                                <th>Category</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Error Display -->
+        <div class="error-message" id="errorMessage" style="display: none;">
+            <h3>⚠️ Error</h3>
+            <p id="errorText"></p>
+        </div>
+    </div>
+
+    <!-- ✅ JS to enable button once file(s) selected -->
+    <script>
+        // Variables already declared in inline script above
+        function updateButtonState() {
+            if (ordersInput.files.length > 0 || costsInput.files.length > 0) {
+                analyzeBtn.disabled = false;
+            } else {
+                analyzeBtn.disabled = true;
+            }
+        }
+
+        ordersInput.addEventListener("change", () => {
+            document.getElementById("ordersStatus").innerText =
+                ordersInput.files.length > 0 ? `✅ ${ordersInput.files[0].name}` : "No file selected";
+            updateButtonState();
+        });
+
+        costsInput.addEventListener("change", () => {
+            document.getElementById("costsStatus").innerText =
+                costsInput.files.length > 0 ? `✅ ${costsInput.files[0].name}` : "No file selected";
+            updateButtonState();
+        });
+    </script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+    <script src="{{ url_for('static', filename='config.js') }}"></script>
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>
