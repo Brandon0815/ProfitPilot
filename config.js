@@ -2,7 +2,7 @@
 const AI_CONFIG = {
     // Replace 'your_huggingface_api_key_here' with your actual Hugging Face API key
     // Get it from: https://huggingface.co/settings/tokens
-    HUGGINGFACE_API_KEY: 'hf_...LUfu',
+    HUGGINGFACE_API_KEY: 'your_huggingface_api_key_here',
     
     // API endpoints
     ENDPOINTS: {
@@ -42,3 +42,4 @@ function validateAPIKey() {
 if (typeof module !== 'undefined' && module.exports) {
     module.exports = AI_CONFIG;
 }
+
