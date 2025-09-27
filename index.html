@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ProfitPilot - AI-Powered Business Analytics</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🚀 ProfitPilot</h1>
+            <p>AI-Powered Business Analytics Dashboard</p>
+        </header>
+
+        <!-- File Upload Section -->
+        <div class="upload-section">
+            <div class="upload-card">
+                <h3>📊 Upload Your Data</h3>
+                <div class="upload-group">
+                    <div class="file-upload">
+                        <label for="ordersFile">Orders/Revenue CSV:</label>
+                        <input type="file" id="ordersFile" accept=".csv" />
+                        <div class="file-status" id="ordersStatus">No file selected</div>
+                    </div>
+                    <div class="file-upload">
+                        <label for="costsFile">Costs/Expenses CSV:</label>
+                        <input type="file" id="costsFile" accept=".csv" />
+                        <div class="file-status" id="costsStatus">No file selected</div>
+                    </div>
+                </div>
+                <button id="analyzeBtn" class="analyze-btn" disabled>🧠 Analyze with AI</button>
+            </div>
+        </div>
+
+        <!-- Summary Cards -->
+        <div class="summary-grid" id="summaryGrid" style="display: none;">
+            <div class="summary-card revenue-card">
+                <div class="card-icon">💰</div>
+                <div class="card-content">
+                    <h3>Total Revenue</h3>
+                    <div class="amount" id="totalRevenue">$0.00</div>
+                    <div class="period" id="revenuePeriod"></div>
+                </div>
+            </div>
+            <div class="summary-card costs-card">
+                <div class="card-icon">💸</div>
+                <div class="card-content">
+                    <h3>Total Costs</h3>
+                    <div class="amount" id="totalCosts">$0.00</div>
+                    <div class="period" id="costsPeriod"></div>
+                </div>
+            </div>
+            <div class="summary-card profit-card">
+                <div class="card-icon">📈</div>
+                <div class="card-content">
+                    <h3>Net Profit</h3>
+                    <div class="amount" id="netProfit">$0.00</div>
+                    <div class="profit-margin" id="profitMargin">0% margin</div>
+                </div>
+            </div>
+            <div class="summary-card prediction-card">
+                <div class="card-icon">🔮</div>
+                <div class="card-content">
+                    <h3>3-Month Prediction</h3>
+                    <div class="amount" id="predictedRevenue">$0.00</div>
+                    <div class="trend" id="trendIndicator">Calculating...</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- AI Insights Section -->
+        <div class="ai-section" id="aiSection" style="display: none;">
+            <div class="ai-card">
+                <h3>🤖 AI Business Insights</h3>
+                <div class="loading" id="aiLoading">
+                    <div class="loading-spinner"></div>
+                    <p>AI is analyzing your business data...</p>
+                </div>
+                <div class="ai-content" id="aiContent" style="display: none;">
+                    <div class="insights-grid">
+                        <div class="insight-card">
+                            <h4>📊 Performance Analysis</h4>
+                            <div id="performanceInsights">Loading...</div>
+                        </div>
+                        <div class="insight-card">
+                            <h4>💡 Optimization Recommendations</h4>
+                            <div id="optimizationTips">Loading...</div>
+                        </div>
+                        <div class="insight-card">
+                            <h4>🎯 Expense Categories</h4>
+                            <div id="expenseCategories">Loading...</div>
+                        </div>
+                        <div class="insight-card">
+                            <h4>🔮 Future Projections</h4>
+                            <div id="futureProjections">Loading...</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Data Tables -->
+        <div class="tables-section" id="tablesSection" style="display: none;">
+            <div class="table-card">
+                <h3>💰 Recent Orders</h3>
+                <div class="table-container">
+                    <table id="ordersTable">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Shop</th>
+                                <th>Order Value</th>
+                                <th>Type</th>
+                                <th>Fees & Taxes</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="table-card">
+                <h3>💸 Recent Expenses</h3>
+                <div class="table-container">
+                    <table id="costsTable">
+                        <thead>
+                            <tr>
+                                <th>Type</th>
+                                <th>Description</th>
+                                <th>Amount</th>
+                                <th>Net Cost</th>
+                                <th>Category</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Error Display -->
+        <div class="error-message" id="errorMessage" style="display: none;">
+            <h3>⚠️ Error</h3>
+            <p id="errorText"></p>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+    <script src="config.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
