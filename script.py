@@ -340,7 +340,6 @@ def upload():
                 'type': 'Product Cost',
                 'description': str(description_val),
                 'amount': str(order_value_val),
-                'net_cost': str(order_value_val),
                 'category': 'Inventory'
             })
         
