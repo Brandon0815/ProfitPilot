@@ -109,6 +109,9 @@
                              populateOrdersTable(data.orders_data);
                              populateCostsTable(data.costs_data);
                              
+                             // Store business data for refresh functionality
+                             storeBusinessData(data);
+                             
                              // Show tables section
                              document.getElementById('tablesSection').style.display = 'block';
                          } else {
@@ -215,7 +218,9 @@
                             <div id="performanceInsights">Loading...</div>
                         </div>
                         <div class="insight-card">
-                            <h4>💡 Optimization Recommendations</h4>
+                            <h4>💡 Optimization Recommendations 
+                                <button id="refreshOptimization" class="refresh-btn" title="Get new AI tips">🔄</button>
+                            </h4>
                             <div id="optimizationTips">Loading...</div>
                         </div>
                         <div class="insight-card">
@@ -298,6 +303,65 @@
             document.getElementById("costsStatus").innerText =
                 costsInput.files.length > 0 ? `✅ ${costsInput.files[0].name}` : "No file selected";
             updateButtonState();
+        });
+
+        // Refresh optimization tips functionality
+        let currentBusinessData = null;
+
+        // Store business data when analysis is complete
+        function storeBusinessData(data) {
+            if (data && data.summary) {
+                currentBusinessData = {
+                    revenue: parseFloat(data.summary.total_revenue.replace('$', '').replace(',', '')),
+                    costs: parseFloat(data.summary.total_costs.replace('$', '').replace(',', '')),
+                    margin: parseFloat(data.summary.profit_margin.replace('%', '')),
+                    sales_count: parseInt(data.summary.revenue_period.split(' ')[0])
+                };
+            }
+        }
+
+        // Refresh optimization tips
+        document.addEventListener('DOMContentLoaded', function() {
+            const refreshBtn = document.getElementById('refreshOptimization');
+            if (refreshBtn) {
+                refreshBtn.addEventListener('click', function() {
+                    if (!currentBusinessData) {
+                        alert('Please analyze your data first before refreshing optimization tips.');
+                        return;
+                    }
+
+                    // Show loading state
+                    refreshBtn.classList.add('loading');
+                    refreshBtn.disabled = true;
+                    document.getElementById('optimizationTips').innerHTML = 'Generating new AI insights...';
+
+                    // Call refresh endpoint
+                    fetch('/refresh-optimization', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify(currentBusinessData)
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            document.getElementById('optimizationTips').innerHTML = data.optimization;
+                        } else {
+                            document.getElementById('optimizationTips').innerHTML = 'Failed to generate new tips. Please try again.';
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        document.getElementById('optimizationTips').innerHTML = 'Error generating new tips. Please try again.';
+                    })
+                    .finally(() => {
+                        // Remove loading state
+                        refreshBtn.classList.remove('loading');
+                        refreshBtn.disabled = false;
+                    });
+                });
+            }
         });
     </script>
 
