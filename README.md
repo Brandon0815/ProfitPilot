@@ -1,5 +1,5 @@
 # ProfitPilot
-Tracks costs/profits and also gives tips using Gen AI 
+Tracks costs/profits and also gives dropshipping tips using Gen AI 
 
 ## Features
 - Real-time profit dashboard
@@ -9,9 +9,8 @@ Tracks costs/profits and also gives tips using Gen AI
 
 
 ## Tech Stack
-- HTML5, CSS3, JavaScript
-- Chart.js for visualizations
-- PapaParse for CSV processing
+- HTML5, CSS3, JavaScript, Python
+- pandas for CSV processing
 
 
 ## Hugging Face API
