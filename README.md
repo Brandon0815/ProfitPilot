@@ -1,5 +1,5 @@
 # ProfitPilot
-Tracks costs/profits and also gives tips using Gen AI 
+Tracks costs/profits and also gives dropshipping tips using Gen AI 
 
 ## Features
 - Real-time profit dashboard
